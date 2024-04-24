@@ -111,5 +111,77 @@ function removeItemCart(name){
 
     if(index !== -1){
         const item = cart[index]
+    
+
+        if(item.quantity > 1){
+            item.quantity -=1
+            updateCartModal()
+            return
+        }
+
+        cart.splice(index,1)
+        updateCartModal()
+    }    
+}
+
+addressInput.addEventListener("input", function(event){
+    let inputValue = event.target.value
+
+    if(inputValue !== ""){
+        addressInput.classList.remove("border-red-500")
+        addresswarn.classList.add("hidden")
     }
+
+})
+
+//finalizar pedido
+checkoutBtn.addEventListener("click", function(){
+
+    const isOpen = checkRestauranteOpen()
+    if(!isOpen){
+        alert("Restaurante fechado no momento!")
+        return
+    }
+
+    if(cart.length === 0) return
+    
+    if(addressInput.value === ""){
+        addresswarn.classList.remove("hidden")
+        addressInput.classList.add("border-red-500")
+        return
+    }
+
+    //enviar para a API do whatsapp
+    const cartItems = cart.map((item) => {
+        return(
+            `${item.name} Quantidade: (${item.quantity}) Preço: R$${item.price} |`
+        )
+    }).join("")
+
+    const message = encodeURIComponent(cartItems)
+    const phone = "47999219404"
+
+    window.open(`https://wa.me/${phone}?text=${message} Endereço: ${addressInput.value}`, "_blank")
+
+    cart = []
+    updateCartModal()
+
+})
+
+function checkRestauranteOpen(){
+    const data = new Date()
+    const hora = data.getHours()
+    return hora >= 18 && hora < 23
+}
+
+const spanItem = document.getElementById("date-span")
+const isOpen = checkRestauranteOpen()
+
+if(isOpen){
+    spanItem.classList.remove("bg-red-500")
+    spanItem.classList.add("bg-green-600")
+}else{
+    spanItem.classList.remove("bg-green-600")
+    spanItem.classList.add("bg-green-500")
+    
 }
